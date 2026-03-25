@@ -4,7 +4,7 @@ int redLED = 2;
 int buzzerPin = 3;
 int soundSensor = A0;
 int sound_sensor_value;
-int soundTh = 400;
+int soundTh = 50;
 int pirSensor = 5;
 bool pir_sensor_value;
 int greenLED = 6;
