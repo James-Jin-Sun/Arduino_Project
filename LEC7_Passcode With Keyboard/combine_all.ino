@@ -17,7 +17,7 @@ byte colPins[cols] = {7, 6, 5, 4};
 Keypad myKeypad = Keypad(makeKeymap(keys), rowPins,
                          colPins, rows, cols);
 // setup passcode
-String cor_Passcode = "1234"; // correct passcode
+String cor_Passcode = "123A"; // correct passcode
 String ent_Passcode;          // entered passcode
 
 void setup()
@@ -36,16 +36,10 @@ void loop()
     // print the key just read
     if (key)
     {
-        // Serial.print("User pressed: ");
-        // Serial.println(key);
+        Serial.print("User pressed: ");
+        Serial.println(key);
 
-        if (key >= '0' && key <= '9')
-        {
-            ent_Passcode += key;
-            Serial.print("Current input: ");
-            Serial.println(ent_Passcode);
-        }
-        else if (key == '#')
+        if (key == '#')
         {
             // clear current input
             ent_Passcode = "";
@@ -68,7 +62,7 @@ void loop()
         }
         else
         {
-            Serial.println("Wrong key pressed, please try again.");
+            ent_Passcode += key;
             Serial.print("Current input: ");
             Serial.println(ent_Passcode);
         }
