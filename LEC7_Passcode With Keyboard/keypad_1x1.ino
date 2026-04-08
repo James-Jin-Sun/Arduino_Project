@@ -32,7 +32,7 @@ void loop()
     // step 6: print the key just read
     if (key)
     {
-        Serial.print("Pressed: ");
+        Serial.print("User pressed: ");
         Serial.println(key);
     }
 }

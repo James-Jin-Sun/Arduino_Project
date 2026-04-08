@@ -34,34 +34,25 @@ void loop()
     char key = myKeypad.getKey();
 
     // print the key just read
-    if (key)
-    {
+    if (key) {
         Serial.print("User pressed: ");
         Serial.println(key);
 
-        if (key == '#')
-        {
+        if (key == '#') {
             // clear current input
             ent_Passcode = "";
             Serial.print("Current input: ");
             Serial.println(ent_Passcode);
-        }
-        else if (key == '*')
-        {
+        } else if (key == '*') {
             // submit passcode;
-            if (ent_Passcode == cor_Passcode)
-            {
+            if (ent_Passcode == cor_Passcode) {
                 Serial.println("Correct passcode, please enter!");
-            }
-            else
-            {
+            } else {
                 Serial.println("Wrong passcode, please try again.");
             }
             // clear current input after submisssion
             ent_Passcode = "";
-        }
-        else
-        {
+        } else {
             ent_Passcode += key;
             Serial.print("Current input: ");
             Serial.println(ent_Passcode);
