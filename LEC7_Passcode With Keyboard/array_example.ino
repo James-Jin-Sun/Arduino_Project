@@ -1,4 +1,5 @@
 int numbers[5] = {10, 20, 30, 40, 50};
+byte pins[4] = {2, 3, 4, 5};
 char letters[4] = {'A', 'B', 'C', 'D'};
 int table[2][3] = {
     {1, 2, 3}, // Row 0
@@ -16,6 +17,8 @@ void loop()
     // put your main code here, to run repeatedly:
     Serial.println(letters[0]);  // A
     Serial.println(letters[3]);  // D
+    Serial.println(pins[0]);     // 2
+    Serial.println(pins[3]);     // 5
     Serial.println(numbers[1]);  // 20
     Serial.println(numbers[4]);  // 50
     Serial.println(table[0][0]); // 1
