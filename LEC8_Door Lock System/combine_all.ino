@@ -52,8 +52,6 @@ void loop()
         {
             // submit passcode;
             submitAndCheck();
-            // back to initial screen
-
             // clear current input after submisssion
             ent_Passcode = "";
         }
