@@ -24,7 +24,7 @@ void setup()
 {
     // put your setup code here, to run once:
     Serial.begin(9600);
-    Serial.println("Keypad is ready! Press any key...");
+    printInitMessage();
     myServo.attach(servoPin); // attaches servo to pin 13
 }
 
@@ -55,6 +55,10 @@ void loop()
     }
 }
 
+void printInitMessage() {
+    Serial.println("Keypad is ready! Press any key...");
+}
+
 void submitAndCheck() {
     if (ent_Passcode == cor_Passcode)
     {
@@ -65,6 +69,8 @@ void submitAndCheck() {
     } else {
         Serial.println("Wrong passcode, please try again.");
     }
+    delay(3000);        // give user enough time to read
+    printInitMessage(); // go back to initial screen
 }
 
 void printCurInput() {
