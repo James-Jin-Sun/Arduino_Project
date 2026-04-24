@@ -1,12 +1,8 @@
-#include <Wire.h>              // use Wire library
-#include <LiquidCrystal_I2C.h> // use LiquidCrystal(LCD) with I2C library
-
 int shsPin = A0;
 float shsVal;
 float humidity;
 int waterpPin = 8; // water pump pin
 int soilHumThs = 60;
-LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 
 void setup()
 {
@@ -14,15 +10,7 @@ void setup()
     Serial.begin(9600);
     pinMode(shsPin, INPUT);
     pinMode(waterpPin, OUTPUT);
-    // setup LCD display
-    lcd.init();
-    lcd.backlight();
-    lcd.setCursor(0, 0);
-    lcd.print("Smart Watering");
-    lcd.setCursor(0, 1);
-    lcd.print("System Ready!");
-    delay(2000);
-    lcd.clear();
+    Serial.print("Smart Watering System Ready!");
 }
 
 void loop()
@@ -30,16 +18,13 @@ void loop()
     // put your main code here, to run repeatedly:
     shsVal = analogRead(shsPin);
     humidity = (shsVal / 1023) * 100;
-    lcd.setCursor(0, 0);
-    lcd.print("Soil Humi:");
-    lcd.print(humidity);
-    lcd.println("% ");
+    Serial.print("Humidity:");
+    Serial.print(humidity);
+    Serial.println("%");
 
     if (humidity < soilHumThs)
     {
         digitalWrite(waterpPin, HIGH);
-        lcd.setCursor(0, 1);
-        lcd.print("Watering        "); // overwrite the rest of row with spaces
         delay(5000);
         digitalWrite(waterpPin, LOW);
         delay(3000); // wait for soil to absorb water
@@ -47,8 +32,6 @@ void loop()
     else
     {
         digitalWrite(waterpPin, LOW);
-        lcd.setCursor(0, 1);
-        lcd.print("Pump: OFF       "); // overwrite the rest of row with spaces
     }
 }
 
