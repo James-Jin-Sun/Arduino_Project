@@ -18,5 +18,6 @@ void loop()
     Serial.println(shsVal);
     Serial.print("Humidity:");
     Serial.println(humidity);
+    Serial.println("%");
     delay(100);
 }
