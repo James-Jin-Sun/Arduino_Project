@@ -21,8 +21,8 @@ void loop()
     // put your main code here, to run repeatedly:
     for (int angle = 0; angle <= 180; angle++)
     {
-        measureDistance();
         myServo.write(angle);
+        measureDistance();
         Serial.print("Angle: ");
         Serial.print(angle);
         Serial.print("° | ");
@@ -34,8 +34,8 @@ void loop()
 
     for (int angle = 180; angle >= 0; angle--)
     {
-        measureDistance();
         myServo.write(angle);
+        measureDistance();
         Serial.print("Angle: ");
         Serial.print(angle);
         Serial.print("° | ");
