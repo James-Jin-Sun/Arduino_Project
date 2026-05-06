@@ -42,6 +42,14 @@ void loop()
     strip.show();
     delay(800);
 
+    // ⚪ WHITE
+    for (int i = 0; i < LED_COUNT; i++)
+    {
+        strip.setPixelColor(i, strip.Color(255, 255, 255));
+    }
+    strip.show();
+    delay(800);
+    
     // ⚫ OFF
     for (int i = 0; i < LED_COUNT; i++)
     {
