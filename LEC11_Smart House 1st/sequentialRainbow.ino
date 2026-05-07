@@ -12,7 +12,7 @@ void setup()
     // put your setup code here, to run once:
     strip.begin();
     strip.setBrightness(50); // Low brightness
-    strip.show();             // Turn OFF all LEDs
+    strip.show();            // send data to LED ring
 }
 
 void loop()

@@ -11,7 +11,7 @@ void setup()
 {
     // put your setup code here, to run once:
     strip.begin();
-    strip.setBrightness(100); // Medium
+    strip.setBrightness(50); // Low Brightness
     strip.show();             // Turn OFF all LEDs
 }
 
