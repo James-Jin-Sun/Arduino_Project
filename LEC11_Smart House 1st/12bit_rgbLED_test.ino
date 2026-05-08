@@ -18,6 +18,14 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
+    // ⚪ WHITE
+    for (int i = 0; i < LED_COUNT; i++)
+    {
+        strip.setPixelColor(i, strip.Color(255, 255, 255));
+    }
+    strip.show();
+    delay(800);
+
     // 🔴 RED
     for (int i = 0; i < LED_COUNT; i++)
     {
@@ -38,14 +46,6 @@ void loop()
     for (int i = 0; i < LED_COUNT; i++)
     {
         strip.setPixelColor(i, strip.Color(0, 0, 255));
-    }
-    strip.show();
-    delay(800);
-
-    // ⚪ WHITE
-    for (int i = 0; i < LED_COUNT; i++)
-    {
-        strip.setPixelColor(i, strip.Color(255, 255, 255));
     }
     strip.show();
     delay(800);

@@ -18,6 +18,7 @@ void setup()
 void loop()
 {
     // put your setup code here, to run once:
+    // ⚪ WHITE
     strip.setPixelColor(0, strip.Color(255, 255, 255));  // Turn ON LED #0 (1st LED)
     strip.setPixelColor(1, strip.Color(255, 255, 255));  // Turn ON LED #1 (2nd LED)
     strip.setPixelColor(2, strip.Color(255, 255, 255));  // Turn ON LED #2 (3rd LED)
