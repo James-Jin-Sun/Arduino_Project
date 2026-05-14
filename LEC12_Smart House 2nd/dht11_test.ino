@@ -23,5 +23,5 @@ void loop()
     Serial.print("°C, Humidity: ");
     Serial.print(humi);
     Serial.println("%");
-    delay(2000);
+    delay(2000);  // DHT11 sensor can only be read every 2 seconds
 }

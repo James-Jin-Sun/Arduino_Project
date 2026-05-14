@@ -5,16 +5,20 @@ int dhtType = DHT11;
 DHT dht(dhtPin, dhtType);
 float humi;
 float temp;
-int motorPin = 5;
+int motorPin_1 = 5; // DRV8833 IN1
+int motorPin_2 = 9; // DRV8833 IN2
+
 int tempThs_1 = 25;
 int tempThs_2 = 30;
+int humiThs = 70;
 
 void setup()
 {
     // put your setup code here, to run once:
     Serial.begin(9600);
     dht.begin();
-    pinMode(motorPin, OUTPUT);
+    pinMode(motorPin_1, OUTPUT);
+    pinMode(motorPin_2, OUTPUT);
 }
 
 void loop()
@@ -27,20 +31,30 @@ void loop()
     Serial.print("°C, Humidity: ");
     Serial.print(humi);
     Serial.println("%");
-    if (temp < tempThs_1)
+    if (temp < tempThs_1  && humi < humiThs)
     {
-        analogWrite(motorPin, 0);
+        analogWrite(motorPin_1, 0);
+        analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
         Serial.println("Fan OFF");
     }
+    else if (temp < tempThs_1  && humi >= humiThs)
+    {
+        analogWrite(motorPin_1, 0);
+        analogWrite(motorPin_2, 153); // half speed exhaust fan
+        Serial.println("Exhasut Mode");
+    }
+    
     else if (temp < tempThs_2)
     {
-        analogWrite(motorPin, 153);
-        Serial.println("Fan ON - Med");
+        analogWrite(motorPin_1, 153);
+        analogWrite(motorPin_2, 0);  // hlaf speed cooling fan
+        Serial.println("Cooling Mode - Med");
     }
     else
     {
-        analogWrite(motorPin, 255);
-        Serial.println("Fan ON - High");
+        analogWrite(motorPin_1, 255);
+        analogWrite(motorPin_2, 0);  // full speed cooling fan
+        Serial.println("Cooling Mode - High");
     }
-    delay(2000);
+    delay(2000);  // DHT11 sensor can only be read every 2 seconds
 }
