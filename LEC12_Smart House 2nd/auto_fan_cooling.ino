@@ -8,8 +8,8 @@ float temp;
 int motorPin_1 = 5; // DRV8833 IN1
 int motorPin_2 = 9; // DRV8833 IN2
 
-int tempThs_1 = 25;
-int tempThs_2 = 30;
+int tempThs_1 = 25;  // medium warm
+int tempThs_2 = 30;  // very warm
 int humiThs = 70;
 
 void setup()
