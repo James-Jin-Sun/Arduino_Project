@@ -2,8 +2,8 @@
 
 int rainPin = A1;
 int rainValue = 0;
-int lightRainThs = 700; // light rain threshold value (depends on the sensor and environment, adjust as needed)
-int heavyRainThs = 400; // heavy rain threshold value (depends on the sensor and environment, adjust as needed)
+int lightRainThs = 700; // light rain threshold
+int heavyRainThs = 400; // heavy rain threshold
 
 int servoPin = 10;
 int winClosDeg = 0;
@@ -22,7 +22,6 @@ void loop()
 {
     // put your main code here, to run repeatedly:
     rainValue = analogRead(rainPin);
-
     Serial.print("Rain Value: ");
     Serial.println(rainValue);
 
@@ -44,6 +43,5 @@ void loop()
         windowServo.write(winClosDeg); // Close the window
         Serial.println("Heavy Rain Detected! Closing the window.");
     }
-
     delay(500);
 }
