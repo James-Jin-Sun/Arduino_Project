@@ -1,7 +1,15 @@
+#include <Adafruit_NeoPixel.h>
+
+int LED_PIN = 6;    // Connect to D (DIN)
+int LED_COUNT = 12; // 12 LEDs on ring
+
+// NEO_GRB   → color order used by WS2812 LEDs (Green, Red, Blue)
+// NEO_KHZ800 → communication speed (800 kHz signal required by WS2812)
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
+
 int flamePin = 3;
 bool flameValue;
 int buzeerPin = 7;
-int redLEDPin = 8;
 
 void setup()
 {
@@ -9,7 +17,9 @@ void setup()
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
     pinMode(buzeerPin, OUTPUT);
-    pinMode(redLEDPin, OUTPUT);
+    strip.begin();
+    strip.setBrightness(50); // Low brightness
+    strip.show();            // send data to LED ring
 }
 
 void loop()
@@ -22,14 +32,24 @@ void loop()
     {
         Serial.println("Fire detected!");
         digitalWrite(buzeerPin, HIGH);
-        digitalWrite(redLEDPin, HIGH);
+        setColor(255, 0, 0); // Red color for fire
+
     }
     else
     {
         Serial.println("No fire.");
         digitalWrite(buzeerPin, LOW);
-        digitalWrite(redLEDPin, LOW);
+        setColor(0, 0, 0); // Turn off LEDs
     }
 
-    delay(500);
+    delay(1000);
+}
+
+void setColor(int r, int g, int b)
+{
+    for (int i = 0; i < LED_COUNT; i++)
+    {
+        strip.setPixelColor(i, strip.Color(r, g, b));
+    }
+    strip.show();
 }
