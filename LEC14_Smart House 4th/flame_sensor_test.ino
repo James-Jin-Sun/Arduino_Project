@@ -14,5 +14,5 @@ void loop()
     flameValue = digitalRead(flamePin);
     Serial.print("Flame Sensor Value: ");
     Serial.println(flameValue);
-    delay(500);
+    delay(1000);
 }

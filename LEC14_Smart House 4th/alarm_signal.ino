@@ -1,11 +1,15 @@
 int flamePin = 3;
 bool flameValue;
+int buzeerPin = 7;
+int redLEDPin = 8;
 
 void setup()
 {
     // put your setup code here, to run once:
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
+    pinMode(buzeerPin, OUTPUT);
+    pinMode(redLEDPin, OUTPUT);
 }
 
 void loop()
@@ -17,10 +21,14 @@ void loop()
     if (flameValue == LOW)
     {
         Serial.println("Fire detected!");
+        digitalWrite(buzeerPin, HIGH);
+        digitalWrite(redLEDPin, HIGH);
     }
     else
     {
         Serial.println("No fire.");
+        digitalWrite(buzeerPin, LOW);
+        digitalWrite(redLEDPin, LOW);
     }
 
     delay(500);
