@@ -1,7 +1,15 @@
+#include <Adafruit_NeoPixel.h>
+
+int LED_PIN = 6;    // Connect to D (DIN)
+int LED_COUNT = 12; // 12 LEDs on ring
+
+// NEO_GRB   → color order used by WS2812 LEDs (Green, Red, Blue)
+// NEO_KHZ800 → communication speed (800 kHz signal required by WS2812)
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
+
 int flamePin = 3;
 bool flameValue;
 int buzeerPin = 7;
-int redLEDPin = 8;
 
 int motorPin_1 = 5; // DRV8833 IN1
 int motorPin_2 = 9; // DRV8833 IN2
@@ -12,7 +20,9 @@ void setup()
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
     pinMode(buzeerPin, OUTPUT);
-    pinMode(redLEDPin, OUTPUT);
+    strip.begin();
+    strip.setBrightness(50); // Low brightness
+    strip.show();            // send data to LED ring
     pinMode(motorPin_1, OUTPUT);
     pinMode(motorPin_2, OUTPUT);
 }
@@ -27,17 +37,29 @@ void loop()
     {
         Serial.println("Fire detected!");
         digitalWrite(buzeerPin, HIGH);
-        digitalWrite(redLEDPin, HIGH);
-        
-        digitalWrite(motorPin_1, LOW);
-        digitalWrite(motorPin_2, LOW);
+        setColor(255, 0, 0); // Red color for fire
+
+        analogWrite(motorPin_1, 0);
+        analogWrite(motorPin_2, 0); // Turn off the fan
     }
     else
     {
         Serial.println("No fire.");
         digitalWrite(buzeerPin, LOW);
-        digitalWrite(redLEDPin, LOW);
+        setColor(0, 0, 0); // Turn off LEDs
+
+        analogWrite(motorPin_1, 255);
+        analogWrite(motorPin_2, 0); // Turn on the fan at full speed
     }
 
-    delay(500);
+    delay(1000);
+}
+
+void setColor(int r, int g, int b)
+{
+    for (int i = 0; i < LED_COUNT; i++)
+    {
+        strip.setPixelColor(i, strip.Color(r, g, b));
+    }
+    strip.show();
 }
