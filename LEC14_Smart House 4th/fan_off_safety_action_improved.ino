@@ -45,8 +45,7 @@ void loop()
         analogWrite(motorPin_1, 0);
         analogWrite(motorPin_2, 0); // Turn off the fan
     }
-    else
-    {
+    else {
         Serial.println("No fire.");
         digitalWrite(buzeerPin, LOW);
         setColor(0, 0, 0); // Turn off LEDs

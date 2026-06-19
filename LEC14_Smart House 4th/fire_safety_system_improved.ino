@@ -43,11 +43,9 @@ void loop()
     for (int i = 0; i < 5; i++)
     {
         flameValue = digitalRead(flamePin);
-        if (flameValue == LOW)
-        {
+        if (flameValue == LOW) {
             countFire += 1;
-        }
-        else
+        } else
         {
             countNoFire += 1;
         }
@@ -60,12 +58,10 @@ void loop()
         delay(200); // short delay between readings
     }
     // check if the flame sensor value is LOW for 5 consecutive readings
-    if (countNoFire == 5)
-    {
+    if (countNoFire == 5) {
         fireDetected = false;
     }
-    if (fireTriggered && countFire >= 3)
-    {
+    if (fireTriggered && countFire >= 3) {
         fireDetected = true;
         fireTriggered = false; // Reset the flag after taking action
     }
@@ -92,13 +88,11 @@ void loop()
     delay(1000);
 }
 
-void fireSafety()
-{
+void fireSafety(){
     fireTriggered = true; // Set the flag to indicate that fire safety action has been triggered
 }
 
-void setColor(int r, int g, int b)
-{
+void setColor(int r, int g, int b){
     for (int i = 0; i < LED_COUNT; i++)
     {
         strip.setPixelColor(i, strip.Color(r, g, b));

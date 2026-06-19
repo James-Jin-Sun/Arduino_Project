@@ -39,8 +39,7 @@ void loop()
     for (int i = 0; i < 5; i++)
     {
         flameValue = digitalRead(flamePin);
-        if (flameValue == HIGH)
-        {
+        if (flameValue == HIGH){
             countNoFire += 1;
         }
         Serial.print("Flame Sensor Value: ");
@@ -50,8 +49,7 @@ void loop()
         delay(200); // short delay between readings
     }
     // check if the flame sensor value is HIGH for 5 consecutive readings
-    if (countNoFire == 5)
-    {
+    if (countNoFire == 5){
         fireDetected = false;
     }
 
@@ -64,8 +62,7 @@ void loop()
         analogWrite(motorPin_1, 0);
         analogWrite(motorPin_2, 0); // Turn off the fan
     }
-    else
-    {
+    else {
         Serial.println("No fire.");
         digitalWrite(buzeerPin, LOW);
         setColor(0, 0, 0); // Turn off LEDs
@@ -77,13 +74,11 @@ void loop()
     delay(1000);
 }
 
-void fireSafety()
-{
+void fireSafety(){
     fireDetected = true;
 }
 
-void setColor(int r, int g, int b)
-{
+void setColor(int r, int g, int b){
     for (int i = 0; i < LED_COUNT; i++)
     {
         strip.setPixelColor(i, strip.Color(r, g, b));
