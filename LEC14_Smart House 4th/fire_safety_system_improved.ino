@@ -9,7 +9,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a N
 
 int flamePin = 3;
 bool flameValue;
-int buzeerPin = 7;
+int buzzerPin = 7;
 
 int motorPin_1 = 5; // DRV8833 IN1
 int motorPin_2 = 9; // DRV8833 IN2
@@ -24,7 +24,7 @@ void setup()
     // put your setup code here, to run once:
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
-    pinMode(buzeerPin, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
     strip.begin();
     strip.setBrightness(50); // Low brightness
     strip.show();            // send data to LED ring

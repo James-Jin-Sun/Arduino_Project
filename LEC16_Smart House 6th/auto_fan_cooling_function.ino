@@ -23,10 +23,11 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
+    updateTempHumi();
     handleAutoFanCooling();
 }
 
-void handleAutoFanCooling()
+void updateTempHumi()
 {
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
@@ -35,6 +36,11 @@ void handleAutoFanCooling()
     Serial.print("°C, Humidity: ");
     Serial.print(humi);
     Serial.println("%");
+    delay(2000); // DHT11 sensor can only be read every 2 seconds
+}
+
+void handleAutoFanCooling()
+{
     if (temp < medWarm)
     {
         analogWrite(motorPin_1, 0);
@@ -44,7 +50,7 @@ void handleAutoFanCooling()
     else if (temp >= medWarm && temp < veryWarm)
     {
         analogWrite(motorPin_1, 153);
-        analogWrite(motorPin_2, 0);  // half speed cooling fan
+        analogWrite(motorPin_2, 0); // half speed cooling fan
         Serial.println("Cooling Mode - Med");
     }
     else {
@@ -52,5 +58,4 @@ void handleAutoFanCooling()
         analogWrite(motorPin_2, 0);  // full speed cooling fan
         Serial.println("Cooling Mode - High");
     }
-    delay(2000);  // DHT11 sensor can only be read every 2 seconds
 }

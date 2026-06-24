@@ -39,12 +39,7 @@ void loop()
     checkFire();
     if (fireDetected)
     {
-        Serial.println("Fire detected!");
-        digitalWrite(buzeerPin, HIGH);
-        setColor(255, 0, 0); // Red color for fire
-
-        analogWrite(motorPin_1, 0);
-        analogWrite(motorPin_2, 0); // Turn off the fan
+        handleFireDetected();
     }
     else
     {
@@ -57,6 +52,16 @@ void loop()
     }
 
      delay(1000);
+}
+
+void handleFireDetected()
+{
+    Serial.println("Fire detected!");
+    digitalWrite(buzeerPin, HIGH);
+    setColor(255, 0, 0); // Red color for fire
+
+    analogWrite(motorPin_1, 0);
+    analogWrite(motorPin_2, 0); // Turn off the fan
 }
 
 void checkFire()

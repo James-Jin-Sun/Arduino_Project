@@ -40,7 +40,7 @@ Servo windowServo;
 // flame sensor + buzzer
 int flamePin = 3;
 bool flameValue;
-int buzeerPin = 7;
+int buzzerPin = 7;
 bool fireDetected = false;  // Flag to indicate if fire is detected
 int countFire = 0;          // Counter for flame sensor readings
 int countNoFire = 0;        // Counter for no fire readings
@@ -87,3 +87,129 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
+}
+
+// ---------- Functions ----------
+// Samrt Lighting
+void handleSmartLighting()
+{
+    lsValue = analogRead(lsPin);
+    Serial.print("Light Value: ");
+    Serial.println(lsValue);
+    if (lsValue < lsThs)
+    {
+        rainbow();
+    }
+    else
+    {
+        setColor(0, 0, 0);
+    }
+    delay(500);
+}
+
+void rainbow()
+{
+    // 🔴 RED
+    setColor(255, 0, 0);
+    delay(800);
+
+    // 🟡 Yellow
+    setColor(255, 255, 0);
+    delay(800);
+
+    // 🟠 Orange
+    setColor(255, 100, 0);
+    delay(800);
+
+    // 🟢 GREEN
+    setColor(0, 255, 0);
+    delay(800);
+
+    // 🔵 BLUE
+    setColor(0, 0, 255);
+    delay(800);
+
+    // 🔷 Indigo
+    setColor(75, 0, 130);
+    delay(800);
+
+    // 🟣 Violet
+    setColor(148, 0, 211);
+    delay(800);
+
+    // ⚫ OFF
+    setColor(0, 0, 0);
+    delay(800);
+}
+
+void setColor(int r, int g, int b)
+{
+    for (int i = 0; i < LED_COUNT; i++)
+    {
+        strip.setPixelColor(i, strip.Color(r, g, b));
+    }
+    strip.show();
+}
+
+// Auto Fan Cooling
+void updateTempHumi()
+{
+    humi = dht.readHumidity();
+    temp = dht.readTemperature(); // Celsius
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.print("°C, Humidity: ");
+    Serial.print(humi);
+    Serial.println("%");
+    delay(2000); // DHT11 sensor can only be read every 2 seconds
+}
+
+void handleAutoFanCooling()
+{
+    if (temp < medWarm)
+    {
+        analogWrite(motorPin_1, 0);
+        analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
+        Serial.println("Fan OFF");
+    }
+    else if (temp >= medWarm && temp < veryWarm)
+    {
+        analogWrite(motorPin_1, 153);
+        analogWrite(motorPin_2, 0); // half speed cooling fan
+        Serial.println("Cooling Mode - Med");
+    }
+    else
+    {
+        analogWrite(motorPin_1, 255);
+        analogWrite(motorPin_2, 0); // full speed cooling fan
+        Serial.println("Cooling Mode - High");
+    }
+}
+
+// Rain Response
+void handleRainResponse()
+{
+    rainValue = analogRead(rainPin);
+    Serial.print("Rain Value: ");
+    Serial.println(rainValue);
+
+    if (rainValue > lightRainThs)
+    {
+        // No rain
+        windowServo.write(winOpenDeg); // Open the window
+        Serial.println("No Rain. Keeping the window open.");
+    }
+    else if (rainValue <= lightRainThs && rainValue > heavyRainThs)
+    {
+        // Light rain
+        windowServo.write(winHalfDeg); // Partially open the window
+        Serial.println("Light Rain Detected! Partially opening the window.");
+    }
+    else // rainValue <= heavyRainThs
+    {
+        // Heavy rain
+        windowServo.write(winClosDeg); // Close the window
+        Serial.println("Heavy Rain Detected! Closing the window.");
+    }
+    delay(500);
+}

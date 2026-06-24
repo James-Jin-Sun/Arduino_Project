@@ -9,7 +9,7 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a N
 
 int flamePin = 3;
 bool flameValue;
-int buzeerPin = 7;
+int buzzerPin = 7;
 
 int motorPin_1 = 5; // DRV8833 IN1
 int motorPin_2 = 9; // DRV8833 IN2
@@ -64,7 +64,7 @@ void loop()
     }
     else {
         Serial.println("No fire.");
-        digitalWrite(buzeerPin, LOW);
+        digitalWrite(buzzerPin, LOW);
         setColor(0, 0, 0); // Turn off LEDs
 
         analogWrite(motorPin_1, 255);

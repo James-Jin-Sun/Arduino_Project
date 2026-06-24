@@ -29,12 +29,17 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
+    humi = dht.readHumidity();
+    temp = dht.readTemperature(); // Celsius
+    handleDisplay();
+}
+
+void handleDisplay()
+{
     display.clearDisplay();
     display.setTextSize(2); // Bigger text → about 3-4 rows
     display.setTextColor(WHITE);
 
-    humi = dht.readHumidity();
-    temp = dht.readTemperature(); // Celsius
     // Row 1
     display.setCursor(0, 0);
     display.print("Temp:");
@@ -48,6 +53,4 @@ void loop()
     display.println("%");
 
     display.display(); // send all text to OLED
-
-    delay(2000); // DHT11 sensor can only be read every 2 seconds
 }
