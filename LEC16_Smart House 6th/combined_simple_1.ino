@@ -1,18 +1,18 @@
 // ---------- Libraries  ----------
-#include <Adafruit_NeoPixel.h>    // 12 bit RGB LED library
+#include <Adafruit_NeoPixel.h> // 12 bit RGB LED library
 #include <DHT.h>               // DHT11 temp & humi sensor library
-#include <Servo.h>            // use Servo library
-#include <Wire.h>             // I2C communication library
-#include <Adafruit_GFX.h>     // Graphics library
-#include <Adafruit_SSD1306.h> // OLED display library
+#include <Servo.h>             // use Servo library
+#include <Wire.h>              // I2C communication library
+#include <Adafruit_GFX.h>      // Graphics library
+#include <Adafruit_SSD1306.h>  // OLED display library
 
 // ---------- Pin Def., Objects & Variables ----------
 // 12 bit RGB LED + light sensor
-int LED_PIN = 6; // Connect to D (DIN)
+int LED_PIN = 6;    // Connect to D (DIN)
 int LED_COUNT = 12; // 12 LEDs on ring
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
-int lsPin = A0; // set light sensor=A0
-int lsValue;    // light sensor value
+int lsPin = A0;                                                    // set light sensor=A0
+int lsValue;                                                       // light sensor value
 int lsThs = 150;
 
 // DHT11 temp & humi sensor + DC motor
@@ -53,11 +53,33 @@ int OLED_ADDR = 0x3C; // I2C address for OLED display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 bool oledReady = false;
 
+bool initOLED()
+{
+    Wire.begin();
+
+    if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR))
+    {
+        Serial.println("OLED init failed. Check wiring/address/ram.");
+        return false;
+    }
+
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.println("OLED Ready");
+    display.display();
+    delay(800);
+    return true;
+}
 
 // ---------- Setup ----------
 void setup()
 {
     // put your setup code here, to run once:
+    // serial monitor for debugging
+    Serial.begin(9600);
+
     // 12 bit RGB LED + light sensor
     strip.begin();
     strip.setBrightness(50); // Low brightness
@@ -78,10 +100,7 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(flamePin), fireSafety, FALLING);
 
     // OLED display
-    display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-
-    // serial monitor for debugging
-    Serial.begin(9600);
+    oledReady = initOLED();
 }
 
 // ---------- Loop ----------

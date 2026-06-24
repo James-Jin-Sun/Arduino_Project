@@ -1,55 +1,55 @@
 // ---------- Libraries  ----------
-#include <Adafruit_NeoPixel.h>    // 12 bit RGB LED library
+#include <Adafruit_NeoPixel.h> // 12 bit RGB LED library
 #include <DHT.h>               // DHT11 temp & humi sensor library
-#include <Servo.h>            // use Servo library
-#include <Wire.h>             // I2C communication library
-#include <Adafruit_GFX.h>     // Graphics library
-#include <Adafruit_SSD1306.h> // OLED display library
+#include <Servo.h>             // use Servo library
+#include <Wire.h>              // I2C communication library
+#include <Adafruit_GFX.h>      // Graphics library
+#include <Adafruit_SSD1306.h>  // OLED display library
 
 // ---------- Pin Def., Objects & Variables ----------
 // 12 bit RGB LED + light sensor
-int LED_PIN = 6; // Connect to D (DIN)
-int LED_COUNT = 12; // 12 LEDs on ring
+#define LED_PIN 6                                                  // Connect to D (DIN)
+#define LED_COUNT 12                                               // 12 LEDs on ring
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
-int lsPin = A0; // set light sensor=A0
-int lsValue;    // light sensor value
-int lsThs = 150;
+#define lsPin A0                                                   // set light sensor=A0
+int lsValue;                                                       // light sensor value
+#define lsThs 150
 
 // DHT11 temp & humi sensor + DC motor
-int dhtPin = 2; // DHT11 data pin
-int dhtType = DHT11;
+#define dhtPin 2 // DHT11 data pin
+#define dhtType DHT11
 DHT dht(dhtPin, dhtType);
 float humi;
 float temp;
-int motorPin_1 = 5; // DRV8833 IN1
-int motorPin_2 = 9; // DRV8833 IN2
-int medWarm = 25;   // replace tempThs_1 with medWarm
-int veryWarm = 30;  // replace tempThs_2 with veryWarm
+#define motorPin_1 5 // DRV8833 IN1
+#define motorPin_2 9 // DRV8833 IN2
+#define medWarm 25   // replace tempThs_1 with medWarm
+#define veryWarm 30  // replace tempThs_2 with veryWarm
 
 // rain sensor + servo motor
-int rainPin = A1;
+#define rainPin A1
 int rainValue;
-int lightRainThs = 700; // light rain threshold
-int heavyRainThs = 400; // heavy rain threshold
-int servoPin = 10;
-int winClosDeg = 0;
-int winHalfDeg = 90;
-int winOpenDeg = 180;
+#define lightRainThs 700 // light rain threshold
+#define heavyRainThs 400 // heavy rain threshold
+#define servoPin 10
+#define winClosDeg 0
+#define winHalfDeg 90
+#define winOpenDeg 180
 Servo windowServo;
 
 // flame sensor + buzzer
-int flamePin = 3;
+#define flamePin 3
 bool flameValue;
-int buzzerPin = 7;
+#define buzzerPin 7
 bool fireDetected = false;  // Flag to indicate if fire is detected
-int countFire = 0;          // Counter for flame sensor readings
-int countNoFire = 0;        // Counter for no fire readings
+byte countFire = 0;          // Counter for flame sensor readings
+byte countNoFire = 0;        // Counter for no fire readings
 bool fireTriggered = false; // Flag to indicate if fire safety action has been triggered
 
 // OLED display
-int SCREEN_WIDTH = 128;
-int SCREEN_HEIGHT = 64;
-int OLED_ADDR = 0x3C; // I2C address for OLED display
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_ADDR 0x3C // I2C address for OLED display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 bool oledReady = false;
 
@@ -64,7 +64,7 @@ bool initOLED()
     }
 
     display.clearDisplay();
-    display.setTextSize(1);
+    display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(0, 0);
     display.println("OLED Ready");
@@ -72,7 +72,6 @@ bool initOLED()
     delay(800);
     return true;
 }
-
 
 // ---------- Setup ----------
 void setup()
