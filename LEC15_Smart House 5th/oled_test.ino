@@ -6,9 +6,9 @@
 #include <Adafruit_GFX.h> // Graphics library
 #include <Adafruit_SSD1306.h>  // OLED display library
 // OLED display resolution
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_ADDR 0x3C  // I2C address for OLED display
+int SCREEN_WIDTH = 128;
+int SCREEN_HEIGHT = 64;
+int OLED_ADDR = 0x3C; // I2C address for OLED display
 
 int tempValue = 25;
 float humValue = 60.0;

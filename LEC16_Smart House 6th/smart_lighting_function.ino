@@ -24,6 +24,11 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
+    handleSmartLighting();
+}
+
+void handleSmartLighting()
+{
     lsValue = analogRead(lsPin);
     Serial.print("Light Value: ");
     Serial.println(lsValue);
