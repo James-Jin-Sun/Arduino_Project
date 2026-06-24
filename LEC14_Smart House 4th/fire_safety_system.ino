@@ -22,7 +22,7 @@ void setup()
     // put your setup code here, to run once:
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
-    pinMode(buzeerPin, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
     strip.begin();
     strip.setBrightness(50); // Low brightness
     strip.show();            // send data to LED ring
@@ -56,7 +56,7 @@ void loop()
     if (fireDetected)
     {
         Serial.println("Fire detected!");
-        digitalWrite(buzeerPin, HIGH);
+        digitalWrite(buzzerPin, HIGH);
         setColor(255, 0, 0); // Red color for fire
 
         analogWrite(motorPin_1, 0);

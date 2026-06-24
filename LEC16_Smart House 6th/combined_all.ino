@@ -51,12 +51,36 @@ int SCREEN_WIDTH = 128;
 int SCREEN_HEIGHT = 64;
 int OLED_ADDR = 0x3C; // I2C address for OLED display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+bool oledReady = false;
+
+bool initOLED()
+{
+    Wire.begin();
+
+    if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR))
+    {
+        Serial.println("OLED init failed. Check wiring/address/ram.");
+        return false;
+    }
+
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.println("OLED Ready");
+    display.display();
+    delay(800);
+    return true;
+}
 
 
 // ---------- Setup ----------
 void setup()
 {
     // put your setup code here, to run once:
+    // serial monitor for debugging
+    Serial.begin(9600);
+
     // 12 bit RGB LED + light sensor
     strip.begin();
     strip.setBrightness(50); // Low brightness
@@ -73,24 +97,34 @@ void setup()
 
     // flame sensor + buzzer
     pinMode(flamePin, INPUT);
-    pinMode(buzeerPin, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(flamePin), fireSafety, FALLING);
 
     // OLED display
-    display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-    
-    // serial monitor for debugging
-    Serial.begin(9600);
+    oledReady = initOLED();
 }
 
 // ---------- Loop ----------
 void loop()
 {
     // put your main code here, to run repeatedly:
+    checkFire();
+    if (fireDetected)
+    {
+        handleFireDetected();
+    }
+    else
+    {
+        handleSmartLighting();
+        updateTempHumi();
+        handleAutoFanCooling();
+        handleRainResponse();
+        handleDisplay();
+    }
 }
 
 // ---------- Functions ----------
-// Samrt Lighting
+// --- Smart Lighting ---
 void handleSmartLighting()
 {
     lsValue = analogRead(lsPin);
@@ -151,7 +185,7 @@ void setColor(int r, int g, int b)
     strip.show();
 }
 
-// Auto Fan Cooling
+// --- Auto Fan Cooling ---
 void updateTempHumi()
 {
     humi = dht.readHumidity();
@@ -186,7 +220,7 @@ void handleAutoFanCooling()
     }
 }
 
-// Rain Response
+// --- Rain Response ---
 void handleRainResponse()
 {
     rainValue = analogRead(rainPin);
@@ -212,4 +246,84 @@ void handleRainResponse()
         Serial.println("Heavy Rain Detected! Closing the window.");
     }
     delay(500);
+}
+
+// --- Fire Safety ---
+void handleFireDetected()
+{
+    Serial.println("Fire detected!");
+    digitalWrite(buzzerPin, HIGH);
+    setColor(255, 0, 0); // Red color for fire
+
+    analogWrite(motorPin_1, 0);
+    analogWrite(motorPin_2, 0); // Turn off the fan
+}
+
+void checkFire()
+{
+    countFire = 0;   // Reset the counter for each loop iteration
+    countNoFire = 0; // Reset the no fire counter for each loop iteration
+
+    // Read the flame sensor value 5 consecutive times
+    for (int i = 0; i < 5; i++)
+    {
+        flameValue = digitalRead(flamePin);
+        if (flameValue == LOW)
+        {
+            countFire += 1;
+        }
+        else
+        {
+            countNoFire += 1;
+        }
+        Serial.print("Flame Sensor Value: ");
+        Serial.print(flameValue);
+        Serial.print(" | Count Fire: ");
+        Serial.print(countFire);
+        Serial.print(" | Count No Fire: ");
+        Serial.println(countNoFire);
+        delay(200); // short delay between readings
+    }
+    // check if the flame sensor value is LOW for 5 consecutive readings
+    if (countNoFire == 5)
+    {
+        fireDetected = false;
+    }
+    if (fireTriggered && countFire >= 3)
+    {
+        fireDetected = true;
+        fireTriggered = false; // Reset the flag after taking action
+    }
+}
+
+void fireSafety()
+{
+    fireTriggered = true; // Set the flag to indicate that fire safety action has been triggered
+}
+
+// OLED Display
+void handleDisplay()
+{
+    if (!oledReady)
+    {
+        return;
+    }
+
+    display.clearDisplay();
+    display.setTextSize(2); // Bigger text → about 3-4 rows
+    display.setTextColor(WHITE);
+
+    // Row 1
+    display.setCursor(0, 0);
+    display.print("Temp:");
+    display.print(temp, 1); // print temperature with 0 decimal places
+    display.println("C");
+
+    // Row 2
+    display.setCursor(0, 20);
+    display.print("Hum:");
+    display.print(humi, 1); // print temperature with no decimal places
+    display.println("%");
+
+    display.display(); // send all text to OLED
 }

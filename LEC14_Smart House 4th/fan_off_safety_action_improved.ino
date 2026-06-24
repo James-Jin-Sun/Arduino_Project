@@ -21,7 +21,7 @@ void setup()
     // put your setup code here, to run once:
     Serial.begin(9600);
     pinMode(flamePin, INPUT);
-    pinMode(buzeerPin, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
     strip.begin();
     strip.setBrightness(50); // Low brightness
     strip.show();            // send data to LED ring
