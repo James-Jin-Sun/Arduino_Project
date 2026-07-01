@@ -1,6 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 
-int LED_PIN = 6;    // Connect to D (DIN)
+int LED_PIN = 8;    // Connect to D (DIN)
 int LED_COUNT = 12; // 12 LEDs on ring
 
 // NEO_GRB   → color order used by WS2812 LEDs (Green, Red, Blue)

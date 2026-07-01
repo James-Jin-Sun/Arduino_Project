@@ -8,7 +8,7 @@
 
 // ---------- Pin Def., Objects & Variables ----------
 // 12 bit RGB LED + light sensor
-#define LED_PIN 6                                                  // Connect to D (DIN)
+#define LED_PIN 8                                                  // Connect to D (DIN)
 #define LED_COUNT 12                                               // 12 LEDs on ring
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
 #define lsPin A0                                                   // set light sensor=A0
@@ -22,9 +22,9 @@ DHT dht(dhtPin, dhtType);
 float humi;
 float temp;
 #define motorPin_1 5 // DRV8833 IN1
-#define motorPin_2 9 // DRV8833 IN2
-#define medWarm 25   // replace tempThs_1 with medWarm
-#define veryWarm 30  // replace tempThs_2 with veryWarm
+#define motorPin_2 6 // DRV8833 IN2
+#define medWarm 22   // replace tempThs_1 with medWarm
+#define veryWarm 24  // replace tempThs_2 with veryWarm
 
 // rain sensor + servo motor
 #define rainPin A1
@@ -130,7 +130,7 @@ void loop()
 void handleSmartLighting()
 {
     lsValue = analogRead(lsPin);
-    Serial.print("Light Value: ");
+    Serial.print(F("Light Value: "));
     Serial.println(lsValue);
     if (lsValue < lsThs)
     {
@@ -192,11 +192,11 @@ void updateTempHumi()
 {
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
-    Serial.print("Temperature: ");
+    Serial.print(F("Temperature: "));
     Serial.print(temp);
-    Serial.print("°C, Humidity: ");
+    Serial.print(F("°C, Humidity: "));
     Serial.print(humi);
-    Serial.println("%");
+    Serial.println(F("%"));
     delay(2000); // DHT11 sensor can only be read every 2 seconds
 }
 
@@ -204,48 +204,53 @@ void handleAutoFanCooling()
 {
     if (temp < medWarm)
     {
-        analogWrite(motorPin_1, 0);
-        analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
-        Serial.println("Fan OFF");
+        fanOff();
     }
     else if (temp >= medWarm && temp < veryWarm)
     {
         analogWrite(motorPin_1, 153);
         analogWrite(motorPin_2, 0); // half speed cooling fan
-        Serial.println("Cooling Mode - Med");
+        Serial.println(F("Fan ON - Med"));
     }
     else
     {
         analogWrite(motorPin_1, 255);
         analogWrite(motorPin_2, 0); // full speed cooling fan
-        Serial.println("Cooling Mode - High");
+        Serial.println(F("Fan ON - High"));
     }
+}
+
+void fanOff()
+{
+    analogWrite(motorPin_1, 0);
+    analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
+    Serial.println(F("Fan OFF"));
 }
 
 // --- Rain Response ---
 void handleRainResponse()
 {
     rainValue = analogRead(rainPin);
-    Serial.print("Rain Value: ");
+    Serial.print(F("Rain Value: "));
     Serial.println(rainValue);
 
     if (rainValue > lightRainThs)
     {
         // No rain
         windowServo.write(winOpenDeg); // Open the window
-        Serial.println("No Rain. Keeping the window open.");
+        Serial.println(F("No Rain. Keeping the window open."));
     }
     else if (rainValue <= lightRainThs && rainValue > heavyRainThs)
     {
         // Light rain
         windowServo.write(winHalfDeg); // Partially open the window
-        Serial.println("Light Rain Detected! Partially opening the window.");
+        Serial.println(F("Light Rain Detected! Partially opening the window."));
     }
     else // rainValue <= heavyRainThs
     {
         // Heavy rain
         windowServo.write(winClosDeg); // Close the window
-        Serial.println("Heavy Rain Detected! Closing the window.");
+        Serial.println(F("Heavy Rain Detected! Closing the window."));
     }
     delay(500);
 }
@@ -253,7 +258,7 @@ void handleRainResponse()
 // --- Fire Safety ---
 void handleFireDetected()
 {
-    Serial.println("Fire detected!");
+    Serial.println(F("Fire detected!"));
     digitalWrite(buzzerPin, HIGH);
     setColor(255, 0, 0); // Red color for fire
 
@@ -278,11 +283,11 @@ void checkFire()
         {
             countNoFire += 1;
         }
-        Serial.print("Flame Sensor Value: ");
+        Serial.print(F("Flame Sensor Value: "));
         Serial.print(flameValue);
-        Serial.print(" | Count Fire: ");
+        Serial.print(F(" | Count Fire: "));
         Serial.print(countFire);
-        Serial.print(" | Count No Fire: ");
+        Serial.print(F(" | Count No Fire: "));
         Serial.println(countNoFire);
         delay(200); // short delay between readings
     }

@@ -43,7 +43,7 @@ void loop()
     }
     else
     {
-        Serial.println("No fire.");
+        Serial.println(F("No fire."));
         digitalWrite(buzzerPin, LOW);
         setColor(0, 0, 0); // Turn off LEDs
 
@@ -56,7 +56,7 @@ void loop()
 
 void handleFireDetected()
 {
-    Serial.println("Fire detected!");
+    Serial.println(F("Fire detected!"));
     digitalWrite(buzzerPin, HIGH);
     setColor(255, 0, 0); // Red color for fire
 
@@ -81,11 +81,11 @@ void checkFire()
         {
             countNoFire += 1;
         }
-        Serial.print("Flame Sensor Value: ");
+        Serial.print(F("Flame Sensor Value: "));
         Serial.print(flameValue);
-        Serial.print(" | Count Fire: ");
+        Serial.print(F(" | Count Fire: "));
         Serial.print(countFire);
-        Serial.print(" | Count No Fire: ");
+        Serial.print(F(" | Count No Fire: "));
         Serial.println(countNoFire);
         delay(200); // short delay between readings
     }

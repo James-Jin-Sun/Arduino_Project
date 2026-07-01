@@ -43,13 +43,13 @@ void handleDisplay()
     // Row 1
     display.setCursor(0, 0);
     display.print("Temp:");
-    display.print(temp, 1); // print temperature with 0 decimal places
+    display.print(temp, 1); // print temperature with 1 decimal places
     display.println("C");
 
     // Row 2
     display.setCursor(0, 20);
     display.print("Hum:");
-    display.print(humi, 1); // print temperature with no decimal places
+    display.print(humi, 1); // print temperature with 1 decimal places
     display.println("%");
 
     display.display(); // send all text to OLED

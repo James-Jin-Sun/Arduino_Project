@@ -8,7 +8,7 @@
 
 // ---------- Pin Def., Objects & Variables ----------
 // 12 bit RGB LED + light sensor
-#define LED_PIN 6                                                  // Connect to D (DIN)
+#define LED_PIN 8                                                  // Connect to D (DIN)
 #define LED_COUNT 12                                               // 12 LEDs on ring
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
 #define lsPin A0                                                   // set light sensor=A0
@@ -22,9 +22,9 @@ DHT dht(dhtPin, dhtType);
 float humi;
 float temp;
 #define motorPin_1 5 // DRV8833 IN1
-#define motorPin_2 9 // DRV8833 IN2
+#define motorPin_2 6 // DRV8833 IN2
 #define medWarm 22   // replace tempThs_1 with medWarm
-#define veryWarm 25  // replace tempThs_2 with veryWarm
+#define veryWarm 24  // replace tempThs_2 with veryWarm
 
 // rain sensor + servo motor
 #define rainPin A1
@@ -129,6 +129,12 @@ void loop()
 // --- Smart Lighting ---
 void handleSmartLighting()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     lsValue = analogRead(lsPin);
     Serial.print(F("Light Value: "));
     Serial.println(lsValue);
@@ -140,7 +146,7 @@ void handleSmartLighting()
     {
         setColor(0, 0, 0);
     }
-    delay(500);
+    // delay(500);
 }
 
 void rainbow()
@@ -175,7 +181,7 @@ void rainbow()
 
     // ⚫ OFF
     setColor(0, 0, 0);
-    delay(800);
+    // delay(800);
 }
 
 void setColor(int r, int g, int b)
@@ -190,6 +196,12 @@ void setColor(int r, int g, int b)
 // --- Auto Fan Cooling ---
 void updateTempHumi()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
     Serial.print(F("Temperature: "));
@@ -202,11 +214,15 @@ void updateTempHumi()
 
 void handleAutoFanCooling()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     if (temp < medWarm)
     {
-        analogWrite(motorPin_1, 0);
-        analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
-        Serial.println(F("Fan OFF"));
+        fanOff();
     }
     else if (temp >= medWarm && temp < veryWarm)
     {
@@ -222,9 +238,22 @@ void handleAutoFanCooling()
     }
 }
 
+void fanOff()
+{
+    analogWrite(motorPin_1, 0);
+    analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
+    Serial.println(F("Fan OFF"));
+}
+
 // --- Rain Response ---
 void handleRainResponse()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     rainValue = analogRead(rainPin);
     Serial.print(F("Rain Value: "));
     Serial.println(rainValue);
@@ -247,7 +276,7 @@ void handleRainResponse()
         windowServo.write(winClosDeg); // Close the window
         Serial.println(F("Heavy Rain Detected! Closing the window."));
     }
-    delay(500);
+    // delay(500);
 }
 
 // --- Fire Safety ---
@@ -306,6 +335,12 @@ void fireSafety()
 // OLED Display
 void handleDisplay()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     if (!oledReady)
     {
         return;

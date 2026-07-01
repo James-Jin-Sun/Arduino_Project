@@ -27,26 +27,26 @@ void loop()
 void handleRainResponse()
 {
     rainValue = analogRead(rainPin);
-    Serial.print("Rain Value: ");
+    Serial.print(F("Rain Value: "));
     Serial.println(rainValue);
 
     if (rainValue > lightRainThs)
     {
         // No rain
         windowServo.write(winOpenDeg); // Open the window
-        Serial.println("No Rain. Keeping the window open.");
+        Serial.println(F("No Rain. Keeping the window open."));
     }
     else if (rainValue <= lightRainThs && rainValue > heavyRainThs)
     {
         // Light rain
         windowServo.write(winHalfDeg); // Partially open the window
-        Serial.println("Light Rain Detected! Partially opening the window.");
+        Serial.println(F("Light Rain Detected! Partially opening the window."));
     }
     else // rainValue <= heavyRainThs
     {
         // Heavy rain
         windowServo.write(winClosDeg); // Close the window
-        Serial.println("Heavy Rain Detected! Closing the window.");
+        Serial.println(F("Heavy Rain Detected! Closing the window."));
     }
     delay(500);
 }
