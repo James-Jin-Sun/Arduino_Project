@@ -8,48 +8,48 @@
 
 // ---------- Pin Def., Objects & Variables ----------
 // 12 bit RGB LED + light sensor
-int LED_PIN = 6;    // Connect to D (DIN)
-int LED_COUNT = 12; // 12 LEDs on ring
+#define LED_PIN 6                                                  // Connect to D (DIN)
+#define LED_COUNT 12                                               // 12 LEDs on ring
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800); // Create a NeoPixel LED strip object
-int lsPin = A0;                                                    // set light sensor=A0
+#define lsPin A0                                                   // set light sensor=A0
 int lsValue;                                                       // light sensor value
-int lsThs = 150;
+#define lsThs 150
 
 // DHT11 temp & humi sensor + DC motor
-int dhtPin = 2; // DHT11 data pin
-int dhtType = DHT11;
+#define dhtPin 2 // DHT11 data pin
+#define dhtType DHT11
 DHT dht(dhtPin, dhtType);
 float humi;
 float temp;
-int motorPin_1 = 5; // DRV8833 IN1
-int motorPin_2 = 9; // DRV8833 IN2
-int medWarm = 25;   // replace tempThs_1 with medWarm
-int veryWarm = 30;  // replace tempThs_2 with veryWarm
+#define motorPin_1 5 // DRV8833 IN1
+#define motorPin_2 9 // DRV8833 IN2
+#define medWarm 22   // replace tempThs_1 with medWarm
+#define veryWarm 25  // replace tempThs_2 with veryWarm
 
 // rain sensor + servo motor
-int rainPin = A1;
+#define rainPin A1
 int rainValue;
-int lightRainThs = 700; // light rain threshold
-int heavyRainThs = 400; // heavy rain threshold
-int servoPin = 10;
-int winClosDeg = 0;
-int winHalfDeg = 90;
-int winOpenDeg = 180;
+#define lightRainThs 700 // light rain threshold
+#define heavyRainThs 400 // heavy rain threshold
+#define servoPin 10
+#define winClosDeg 0
+#define winHalfDeg 90
+#define winOpenDeg 180
 Servo windowServo;
 
 // flame sensor + buzzer
-int flamePin = 3;
+#define flamePin 3
 bool flameValue;
-int buzzerPin = 7;
+#define buzzerPin 7
 bool fireDetected = false;  // Flag to indicate if fire is detected
-int countFire = 0;          // Counter for flame sensor readings
-int countNoFire = 0;        // Counter for no fire readings
+byte countFire = 0;         // Counter for flame sensor readings
+byte countNoFire = 0;       // Counter for no fire readings
 bool fireTriggered = false; // Flag to indicate if fire safety action has been triggered
 
 // OLED display
-int SCREEN_WIDTH = 128;
-int SCREEN_HEIGHT = 64;
-int OLED_ADDR = 0x3C; // I2C address for OLED display
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_ADDR 0x3C // I2C address for OLED display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 bool oledReady = false;
 
@@ -64,7 +64,7 @@ bool initOLED()
     }
 
     display.clearDisplay();
-    display.setTextSize(1);
+    display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(0, 0);
     display.println("OLED Ready");
@@ -111,12 +111,12 @@ void loop()
     if (fireDetected)
     {
         handleFireDetected();
-        updateTempHumi();  // keep temp & humi updated when fire is detected
-        handleDisplay();  // keep OLED display updated when fire is detected
+        updateTempHumi();
+        handleDisplay();
     }
     else
     {
-        digitalWrite(buzzerPin, LOW);  // Turn off buzzer
+        digitalWrite(buzzerPin, LOW); // Turn off buzzer
         handleSmartLighting();
         updateTempHumi();
         handleAutoFanCooling();
@@ -129,8 +129,14 @@ void loop()
 // --- Smart Lighting ---
 void handleSmartLighting()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     lsValue = analogRead(lsPin);
-    Serial.print("Light Value: ");
+    Serial.print(F("Light Value: "));
     Serial.println(lsValue);
     if (lsValue < lsThs)
     {
@@ -140,7 +146,7 @@ void handleSmartLighting()
     {
         setColor(0, 0, 0);
     }
-    delay(500);
+    // delay(500);
 }
 
 void rainbow()
@@ -175,7 +181,7 @@ void rainbow()
 
     // ⚫ OFF
     setColor(0, 0, 0);
-    delay(800);
+    // delay(800);
 }
 
 void setColor(int r, int g, int b)
@@ -190,70 +196,88 @@ void setColor(int r, int g, int b)
 // --- Auto Fan Cooling ---
 void updateTempHumi()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
-    Serial.print("Temperature: ");
+    Serial.print(F("Temperature: "));
     Serial.print(temp);
-    Serial.print("°C, Humidity: ");
+    Serial.print(F("°C, Humidity: "));
     Serial.print(humi);
-    Serial.println("%");
+    Serial.println(F("%"));
     delay(2000); // DHT11 sensor can only be read every 2 seconds
 }
 
 void handleAutoFanCooling()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     if (temp < medWarm)
     {
         analogWrite(motorPin_1, 0);
         analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
-        Serial.println("Fan OFF");
+        Serial.println(F("Fan OFF"));
     }
     else if (temp >= medWarm && temp < veryWarm)
     {
         analogWrite(motorPin_1, 153);
         analogWrite(motorPin_2, 0); // half speed cooling fan
-        Serial.println("Cooling Mode - Med");
+        Serial.println(F("Cooling Mode - Med"));
     }
     else
     {
         analogWrite(motorPin_1, 255);
         analogWrite(motorPin_2, 0); // full speed cooling fan
-        Serial.println("Cooling Mode - High");
+        Serial.println(F("Cooling Mode - High"));
     }
 }
 
 // --- Rain Response ---
 void handleRainResponse()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     rainValue = analogRead(rainPin);
-    Serial.print("Rain Value: ");
+    Serial.print(F("Rain Value: "));
     Serial.println(rainValue);
 
     if (rainValue > lightRainThs)
     {
         // No rain
         windowServo.write(winOpenDeg); // Open the window
-        Serial.println("No Rain. Keeping the window open.");
+        Serial.println(F("No Rain. Keeping the window open."));
     }
     else if (rainValue <= lightRainThs && rainValue > heavyRainThs)
     {
         // Light rain
         windowServo.write(winHalfDeg); // Partially open the window
-        Serial.println("Light Rain Detected! Partially opening the window.");
+        Serial.println(F("Light Rain Detected! Partially opening the window."));
     }
     else // rainValue <= heavyRainThs
     {
         // Heavy rain
         windowServo.write(winClosDeg); // Close the window
-        Serial.println("Heavy Rain Detected! Closing the window.");
+        Serial.println(F("Heavy Rain Detected! Closing the window."));
     }
-    delay(500);
+    // delay(500);
 }
 
 // --- Fire Safety ---
 void handleFireDetected()
 {
-    Serial.println("Fire detected!");
+    Serial.println(F("Fire detected!"));
     digitalWrite(buzzerPin, HIGH);
     setColor(255, 0, 0); // Red color for fire
 
@@ -278,11 +302,11 @@ void checkFire()
         {
             countNoFire += 1;
         }
-        Serial.print("Flame Sensor Value: ");
+        Serial.print(F("Flame Sensor Value: "));
         Serial.print(flameValue);
-        Serial.print(" | Count Fire: ");
+        Serial.print(F(" | Count Fire: "));
         Serial.print(countFire);
-        Serial.print(" | Count No Fire: ");
+        Serial.print(F(" | Count No Fire: "));
         Serial.println(countNoFire);
         delay(200); // short delay between readings
     }
@@ -306,6 +330,12 @@ void fireSafety()
 // OLED Display
 void handleDisplay()
 {
+    checkFire();
+    if (fireDetected)
+    {
+        return;
+    }
+
     if (!oledReady)
     {
         return;
@@ -318,13 +348,13 @@ void handleDisplay()
     // Row 1
     display.setCursor(0, 0);
     display.print("Temp:");
-    display.print(temp, 1); // print temperature with 0 decimal places
+    display.print(temp, 1); // print temperature with 1 decimal places
     display.println("C");
 
     // Row 2
     display.setCursor(0, 20);
     display.print("Hum:");
-    display.print(humi, 1); // print temperature with no decimal places
+    display.print(humi, 1); // print humidity with 1 decimal places
     display.println("%");
 
     display.display(); // send all text to OLED

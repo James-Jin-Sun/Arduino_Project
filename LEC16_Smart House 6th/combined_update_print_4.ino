@@ -23,8 +23,8 @@ float humi;
 float temp;
 #define motorPin_1 5 // DRV8833 IN1
 #define motorPin_2 9 // DRV8833 IN2
-#define medWarm 25   // replace tempThs_1 with medWarm
-#define veryWarm 30  // replace tempThs_2 with veryWarm
+#define medWarm 22   // replace tempThs_1 with medWarm
+#define veryWarm 25  // replace tempThs_2 with veryWarm
 
 // rain sensor + servo motor
 #define rainPin A1
@@ -42,13 +42,13 @@ Servo windowServo;
 bool flameValue;
 #define buzzerPin 7
 bool fireDetected = false;  // Flag to indicate if fire is detected
-byte countFire = 0;          // Counter for flame sensor readings
-byte countNoFire = 0;        // Counter for no fire readings
-volatile bool fireEdgeDetected = false;
+byte countFire = 0;         // Counter for flame sensor readings
+byte countNoFire = 0;       // Counter for no fire readings
+bool fireTriggered = false; // Flag to indicate if fire safety action has been triggered
 
 // OLED display
 #define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 32
+#define SCREEN_HEIGHT 64
 #define OLED_ADDR 0x3C // I2C address for OLED display
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 bool oledReady = false;
@@ -59,7 +59,7 @@ bool initOLED()
 
     if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR))
     {
-        Serial.println(F("OLED init failed. Check wiring/address/ram."));
+        Serial.println("OLED init failed. Check wiring/address/ram.");
         return false;
     }
 
@@ -67,73 +67,10 @@ bool initOLED()
     display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(0, 0);
-    display.println(F("OLED Ready"));
+    display.println("OLED Ready");
     display.display();
     delay(800);
     return true;
-}
-
-void fireSafetyISR()
-{
-    // ISR must stay tiny: only capture the edge event.
-    fireEdgeDetected = true;
-}
-
-bool confirmFireBurst(byte samples = 7, byte requiredLow = 5, byte gapMs = 10)
-{
-    byte lowCount = 0;
-    for (byte i = 0; i < samples; i++)
-    {
-        if (digitalRead(flamePin) == LOW)
-        {
-            lowCount++;
-            if (lowCount >= requiredLow)
-            {
-                return true;
-            }
-        }
-        delay(gapMs);
-    }
-    return false;
-}
-
-void processFireDetection()
-{
-    if (fireDetected)
-    {
-        return;
-    }
-
-    bool edgePending;
-    noInterrupts();
-    edgePending = fireEdgeDetected;
-    fireEdgeDetected = false;
-    interrupts();
-
-    // Immediate confirm either on captured edge or active LOW level.
-    if (edgePending || digitalRead(flamePin) == LOW)
-    {
-        if (confirmFireBurst())
-        {
-            fireDetected = true;
-            Serial.println(F("Fire confirmed by burst sampling."));
-        }
-    }
-}
-
-bool interruptibleDelay(unsigned long totalMs)
-{
-    unsigned long start = millis();
-    while (millis() - start < totalMs)
-    {
-        processFireDetection();
-        if (fireDetected)
-        {
-            return true;
-        }
-        delay(1);
-    }
-    return false;
 }
 
 // ---------- Setup ----------
@@ -158,9 +95,9 @@ void setup()
     windowServo.attach(servoPin); // attaches servo to pin 10
 
     // flame sensor + buzzer
-    pinMode(flamePin, INPUT_PULLUP);
+    pinMode(flamePin, INPUT);
     pinMode(buzzerPin, OUTPUT);
-    attachInterrupt(digitalPinToInterrupt(flamePin), fireSafetyISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(flamePin), fireSafety, FALLING);
 
     // OLED display
     oledReady = initOLED();
@@ -170,15 +107,16 @@ void setup()
 void loop()
 {
     // put your main code here, to run repeatedly:
-    processFireDetection();
+    checkFire();
     if (fireDetected)
     {
         handleFireDetected();
+        updateTempHumi();
         handleDisplay();
     }
     else
     {
-        digitalWrite(buzzerPin, LOW);
+        digitalWrite(buzzerPin, LOW); // Turn off buzzer
         handleSmartLighting();
         updateTempHumi();
         handleAutoFanCooling();
@@ -191,12 +129,6 @@ void loop()
 // --- Smart Lighting ---
 void handleSmartLighting()
 {
-    processFireDetection();
-    if (fireDetected)
-    {
-        return;
-    }
-
     lsValue = analogRead(lsPin);
     Serial.print(F("Light Value: "));
     Serial.println(lsValue);
@@ -208,49 +140,42 @@ void handleSmartLighting()
     {
         setColor(0, 0, 0);
     }
-    interruptibleDelay(500);
+    delay(500);
 }
 
 void rainbow()
 {
     // 🔴 RED
     setColor(255, 0, 0);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🟡 Yellow
     setColor(255, 255, 0);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🟠 Orange
     setColor(255, 100, 0);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🟢 GREEN
     setColor(0, 255, 0);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🔵 BLUE
     setColor(0, 0, 255);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🔷 Indigo
     setColor(75, 0, 130);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // 🟣 Violet
     setColor(148, 0, 211);
-    if (interruptibleDelay(800))
-        return;
+    delay(800);
 
     // ⚫ OFF
     setColor(0, 0, 0);
-    interruptibleDelay(800);
+    delay(800);
 }
 
 void setColor(int r, int g, int b)
@@ -265,12 +190,6 @@ void setColor(int r, int g, int b)
 // --- Auto Fan Cooling ---
 void updateTempHumi()
 {
-    processFireDetection();
-    if (fireDetected)
-    {
-        return;
-    }
-
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
     Serial.print(F("Temperature: "));
@@ -278,8 +197,7 @@ void updateTempHumi()
     Serial.print(F("°C, Humidity: "));
     Serial.print(humi);
     Serial.println(F("%"));
-    // DHT11 sensor can only be read every 2 seconds.
-    interruptibleDelay(2000);
+    delay(2000); // DHT11 sensor can only be read every 2 seconds
 }
 
 void handleAutoFanCooling()
@@ -307,12 +225,6 @@ void handleAutoFanCooling()
 // --- Rain Response ---
 void handleRainResponse()
 {
-    processFireDetection();
-    if (fireDetected)
-    {
-        return;
-    }
-
     rainValue = analogRead(rainPin);
     Serial.print(F("Rain Value: "));
     Serial.println(rainValue);
@@ -335,7 +247,7 @@ void handleRainResponse()
         windowServo.write(winClosDeg); // Close the window
         Serial.println(F("Heavy Rain Detected! Closing the window."));
     }
-    interruptibleDelay(500);
+    delay(500);
 }
 
 // --- Fire Safety ---
@@ -349,6 +261,48 @@ void handleFireDetected()
     analogWrite(motorPin_2, 0); // Turn off the fan
 }
 
+void checkFire()
+{
+    countFire = 0;   // Reset the counter for each loop iteration
+    countNoFire = 0; // Reset the no fire counter for each loop iteration
+
+    // Read the flame sensor value 5 consecutive times
+    for (int i = 0; i < 5; i++)
+    {
+        flameValue = digitalRead(flamePin);
+        if (flameValue == LOW)
+        {
+            countFire += 1;
+        }
+        else
+        {
+            countNoFire += 1;
+        }
+        Serial.print(F("Flame Sensor Value: "));
+        Serial.print(flameValue);
+        Serial.print(F(" | Count Fire: "));
+        Serial.print(countFire);
+        Serial.print(F(" | Count No Fire: "));
+        Serial.println(countNoFire);
+        delay(200); // short delay between readings
+    }
+    // check if the flame sensor value is LOW for 5 consecutive readings
+    if (countNoFire == 5)
+    {
+        fireDetected = false;
+    }
+    if (fireTriggered && countFire >= 3)
+    {
+        fireDetected = true;
+        fireTriggered = false; // Reset the flag after taking action
+    }
+}
+
+void fireSafety()
+{
+    fireTriggered = true; // Set the flag to indicate that fire safety action has been triggered
+}
+
 // OLED Display
 void handleDisplay()
 {
@@ -358,29 +312,20 @@ void handleDisplay()
     }
 
     display.clearDisplay();
-    display.setTextSize(1);
+    display.setTextSize(2); // Bigger text → about 3-4 rows
     display.setTextColor(WHITE);
 
     // Row 1
     display.setCursor(0, 0);
-    if (fireDetected)
-    {
-        display.println(F("!! FIRE !!"));
-        display.setCursor(0, 16);
-        display.println(F("Fan OFF / Alarm"));
-        display.display();
-        return;
-    }
-
-    display.print(F("Temp: "));
-    display.print(temp, 1);
-    display.println(F(" C"));
+    display.print("Temp:");
+    display.print(temp, 1); // print temperature with 1 decimal places
+    display.println("C");
 
     // Row 2
-    display.setCursor(0, 16);
-    display.print(F("Hum: "));
-    display.print(humi, 1); // print temperature with no decimal places
-    display.println(F("%"));
+    display.setCursor(0, 20);
+    display.print("Hum:");
+    display.print(humi, 1); // print humidity with 1 decimal places
+    display.println("%");
 
     display.display(); // send all text to OLED
 }

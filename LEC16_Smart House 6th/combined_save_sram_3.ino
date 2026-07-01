@@ -111,9 +111,12 @@ void loop()
     if (fireDetected)
     {
         handleFireDetected();
+        updateTempHumi();  // keep temp & humi updated when fire is detected
+        handleDisplay();  // keep OLED display updated when fire is detected
     }
     else
     {
+        digitalWrite(buzzerPin, LOW);  // Turn off buzzer
         handleSmartLighting();
         updateTempHumi();
         handleAutoFanCooling();
