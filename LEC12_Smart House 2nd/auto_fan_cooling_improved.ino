@@ -40,12 +40,12 @@ void loop()
     {
         analogWrite(motorPin_1, 153);
         analogWrite(motorPin_2, 0);  // hlaf speed cooling fan
-        Serial.println("Cooling Mode - Med");
+        Serial.println("Fan ON - Med");
     }
     else {
         analogWrite(motorPin_1, 255);
         analogWrite(motorPin_2, 0);  // full speed cooling fan
-        Serial.println("Cooling Mode - High");
+        Serial.println("Fan ON - High");
     }
     delay(2000);  // DHT11 sensor can only be read every 2 seconds
 }
