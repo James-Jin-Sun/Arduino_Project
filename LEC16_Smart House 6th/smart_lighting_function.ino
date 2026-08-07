@@ -30,7 +30,7 @@ void loop()
 void handleSmartLighting()
 {
     lsValue = analogRead(lsPin);
-    Serial.print("Light Value: ");
+    Serial.print(F("Light Value: "));
     Serial.println(lsValue);
     if (lsValue < lsThs)
     {
