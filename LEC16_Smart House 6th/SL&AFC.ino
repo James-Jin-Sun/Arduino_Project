@@ -55,7 +55,7 @@ void loop()
 void handleSmartLighting()
 {
     lsValue = analogRead(lsPin);
-    Serial.print("Light Value: ");
+    Serial.print(F("Light Value: "));
     Serial.println(lsValue);
     if (lsValue < lsThs)
     {
@@ -117,11 +117,11 @@ void updateTempHumi()
 {
     humi = dht.readHumidity();
     temp = dht.readTemperature(); // Celsius
-    Serial.print("Temperature: ");
+    Serial.print(F("Temperature: "));
     Serial.print(temp);
-    Serial.print("°C, Humidity: ");
+    Serial.print(F("°C, Humidity: "));
     Serial.print(humi);
-    Serial.println("%");
+    Serial.println(F("%"));
     delay(2000); // DHT11 sensor can only be read every 2 seconds
 }
 
@@ -135,13 +135,13 @@ void handleAutoFanCooling()
     {
         analogWrite(motorPin_1, 153);
         analogWrite(motorPin_2, 0); // half speed cooling fan
-        Serial.println("Cooling Mode - Med");
+        Serial.println(F("Cooling Mode - Med"));
     }
     else
     {
         analogWrite(motorPin_1, 255);
         analogWrite(motorPin_2, 0); // full speed cooling fan
-        Serial.println("Cooling Mode - High");
+        Serial.println(F("Cooling Mode - High"));
     }
 }
 
@@ -149,5 +149,5 @@ void fanOff()
 {
     analogWrite(motorPin_1, 0);
     analogWrite(motorPin_2, 0); // stop motor: both inputs LOW
-    Serial.println("Fan OFF");
+    Serial.println(F("Fan OFF"));
 }
